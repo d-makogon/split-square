@@ -6,6 +6,28 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A459CC52E5F82BD0068FF2C /* StoreFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB62E5F82BD0068FF2C /* StoreFactory.swift */; };
+		0A459CC62E5F82BD0068FF2C /* GroupDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CBD2E5F82BD0068FF2C /* GroupDetailView.swift */; };
+		0A459CC72E5F82BD0068FF2C /* ExpenseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CBB2E5F82BD0068FF2C /* ExpenseDetailView.swift */; };
+		0A459CC82E5F82BD0068FF2C /* StoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB72E5F82BD0068FF2C /* StoreProtocol.swift */; };
+		0A459CC92E5F82BD0068FF2C /* BackendSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB22E5F82BD0068FF2C /* BackendSwitch.swift */; };
+		0A459CCA2E5F82BD0068FF2C /* Settlement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB02E5F82BD0068FF2C /* Settlement.swift */; };
+		0A459CCB2E5F82BD0068FF2C /* SettlementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CC02E5F82BD0068FF2C /* SettlementsView.swift */; };
+		0A459CCC2E5F82BD0068FF2C /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB92E5F82BD0068FF2C /* AddExpenseView.swift */; };
+		0A459CCD2E5F82BD0068FF2C /* FirebaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB32E5F82BD0068FF2C /* FirebaseStore.swift */; };
+		0A459CCE2E5F82BD0068FF2C /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB52E5F82BD0068FF2C /* LocalStore.swift */; };
+		0A459CCF2E5F82BD0068FF2C /* SplitSquareApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CAC2E5F82BD0068FF2C /* SplitSquareApp.swift */; };
+		0A459CD02E5F82BD0068FF2C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CAF2E5F82BD0068FF2C /* Models.swift */; };
+		0A459CD12E5F82BD0068FF2C /* GroupsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CBE2E5F82BD0068FF2C /* GroupsListView.swift */; };
+		0A459CD22E5F82BD0068FF2C /* AddPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CBA2E5F82BD0068FF2C /* AddPaymentView.swift */; };
+		0A459CD32E5F82BD0068FF2C /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CAE2E5F82BD0068FF2C /* Currency.swift */; };
+		0A459CD42E5F82BD0068FF2C /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CAB2E5F82BD0068FF2C /* AppRouter.swift */; };
+		0A459CD52E5F82BD0068FF2C /* InviteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB42E5F82BD0068FF2C /* InviteService.swift */; };
+		0A459CD62E5F82BD0068FF2C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0A459CC32E5F82BD0068FF2C /* README.md */; };
+		0A459CD72E5F82BD0068FF2C /* SETUP_FIREBASE.md in Resources */ = {isa = PBXBuildFile; fileRef = 0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0AC001B32E5F7F0E00141EB1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +46,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A459CAB2E5F82BD0068FF2C /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
+		0A459CAC2E5F82BD0068FF2C /* SplitSquareApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitSquareApp.swift; sourceTree = "<group>"; };
+		0A459CAE2E5F82BD0068FF2C /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		0A459CAF2E5F82BD0068FF2C /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		0A459CB02E5F82BD0068FF2C /* Settlement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settlement.swift; sourceTree = "<group>"; };
+		0A459CB22E5F82BD0068FF2C /* BackendSwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendSwitch.swift; sourceTree = "<group>"; };
+		0A459CB32E5F82BD0068FF2C /* FirebaseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStore.swift; sourceTree = "<group>"; };
+		0A459CB42E5F82BD0068FF2C /* InviteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteService.swift; sourceTree = "<group>"; };
+		0A459CB52E5F82BD0068FF2C /* LocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
+		0A459CB62E5F82BD0068FF2C /* StoreFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFactory.swift; sourceTree = "<group>"; };
+		0A459CB72E5F82BD0068FF2C /* StoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreProtocol.swift; sourceTree = "<group>"; };
+		0A459CB92E5F82BD0068FF2C /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
+		0A459CBA2E5F82BD0068FF2C /* AddPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPaymentView.swift; sourceTree = "<group>"; };
+		0A459CBB2E5F82BD0068FF2C /* ExpenseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseDetailView.swift; sourceTree = "<group>"; };
+		0A459CBD2E5F82BD0068FF2C /* GroupDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetailView.swift; sourceTree = "<group>"; };
+		0A459CBE2E5F82BD0068FF2C /* GroupsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsListView.swift; sourceTree = "<group>"; };
+		0A459CC02E5F82BD0068FF2C /* SettlementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementsView.swift; sourceTree = "<group>"; };
+		0A459CC32E5F82BD0068FF2C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SETUP_FIREBASE.md; sourceTree = "<group>"; };
 		0AC001A22E5F7F0D00141EB1 /* SplitSquare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSquare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001B22E5F7F0E00141EB1 /* SplitSquareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001BC2E5F7F0E00141EB1 /* SplitSquareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +113,75 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A459CAD2E5F82BD0068FF2C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CAB2E5F82BD0068FF2C /* AppRouter.swift */,
+				0A459CAC2E5F82BD0068FF2C /* SplitSquareApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		0A459CB12E5F82BD0068FF2C /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CAE2E5F82BD0068FF2C /* Currency.swift */,
+				0A459CAF2E5F82BD0068FF2C /* Models.swift */,
+				0A459CB02E5F82BD0068FF2C /* Settlement.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		0A459CB82E5F82BD0068FF2C /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CB22E5F82BD0068FF2C /* BackendSwitch.swift */,
+				0A459CB32E5F82BD0068FF2C /* FirebaseStore.swift */,
+				0A459CB42E5F82BD0068FF2C /* InviteService.swift */,
+				0A459CB52E5F82BD0068FF2C /* LocalStore.swift */,
+				0A459CB62E5F82BD0068FF2C /* StoreFactory.swift */,
+				0A459CB72E5F82BD0068FF2C /* StoreProtocol.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		0A459CBC2E5F82BD0068FF2C /* Expenses */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CB92E5F82BD0068FF2C /* AddExpenseView.swift */,
+				0A459CBA2E5F82BD0068FF2C /* AddPaymentView.swift */,
+				0A459CBB2E5F82BD0068FF2C /* ExpenseDetailView.swift */,
+			);
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		0A459CBF2E5F82BD0068FF2C /* Groups */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CBD2E5F82BD0068FF2C /* GroupDetailView.swift */,
+				0A459CBE2E5F82BD0068FF2C /* GroupsListView.swift */,
+			);
+			path = Groups;
+			sourceTree = "<group>";
+		};
+		0A459CC12E5F82BD0068FF2C /* Settlements */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CC02E5F82BD0068FF2C /* SettlementsView.swift */,
+			);
+			path = Settlements;
+			sourceTree = "<group>";
+		};
+		0A459CC22E5F82BD0068FF2C /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				0A459CBC2E5F82BD0068FF2C /* Expenses */,
+				0A459CBF2E5F82BD0068FF2C /* Groups */,
+				0A459CC12E5F82BD0068FF2C /* Settlements */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		0AC001992E5F7F0D00141EB1 = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +189,12 @@
 				0AC001B52E5F7F0E00141EB1 /* SplitSquareTests */,
 				0AC001BF2E5F7F0E00141EB1 /* SplitSquareUITests */,
 				0AC001A32E5F7F0D00141EB1 /* Products */,
+				0A459CAD2E5F82BD0068FF2C /* App */,
+				0A459CB12E5F82BD0068FF2C /* Core */,
+				0A459CB82E5F82BD0068FF2C /* Data */,
+				0A459CC22E5F82BD0068FF2C /* Features */,
+				0A459CC32E5F82BD0068FF2C /* README.md */,
+				0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -212,6 +328,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A459CD62E5F82BD0068FF2C /* README.md in Resources */,
+				0A459CD72E5F82BD0068FF2C /* SETUP_FIREBASE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +354,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A459CC52E5F82BD0068FF2C /* StoreFactory.swift in Sources */,
+				0A459CC62E5F82BD0068FF2C /* GroupDetailView.swift in Sources */,
+				0A459CC72E5F82BD0068FF2C /* ExpenseDetailView.swift in Sources */,
+				0A459CC82E5F82BD0068FF2C /* StoreProtocol.swift in Sources */,
+				0A459CC92E5F82BD0068FF2C /* BackendSwitch.swift in Sources */,
+				0A459CCA2E5F82BD0068FF2C /* Settlement.swift in Sources */,
+				0A459CCB2E5F82BD0068FF2C /* SettlementsView.swift in Sources */,
+				0A459CCC2E5F82BD0068FF2C /* AddExpenseView.swift in Sources */,
+				0A459CCD2E5F82BD0068FF2C /* FirebaseStore.swift in Sources */,
+				0A459CCE2E5F82BD0068FF2C /* LocalStore.swift in Sources */,
+				0A459CCF2E5F82BD0068FF2C /* SplitSquareApp.swift in Sources */,
+				0A459CD02E5F82BD0068FF2C /* Models.swift in Sources */,
+				0A459CD12E5F82BD0068FF2C /* GroupsListView.swift in Sources */,
+				0A459CD22E5F82BD0068FF2C /* AddPaymentView.swift in Sources */,
+				0A459CD32E5F82BD0068FF2C /* Currency.swift in Sources */,
+				0A459CD42E5F82BD0068FF2C /* AppRouter.swift in Sources */,
+				0A459CD52E5F82BD0068FF2C /* InviteService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +531,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SplitSquare/Preview Content\"";
+				DEVELOPMENT_TEAM = U739TMBQ87;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -424,6 +560,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SplitSquare/Preview Content\"";
+				DEVELOPMENT_TEAM = U739TMBQ87;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
