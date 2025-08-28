@@ -63,6 +63,11 @@ final class FirebaseStore: GroupStore {
         try db.collection("groups").document(p.groupId).collection("payments").document(p.id).setData(from: p)
     }
 
+    func updatePayment(_ p: Payment) async throws {
+        try db.collection("groups").document(p.groupId)
+            .collection("payments").document(p.id).setData(from: p, merge: true)
+    }
+
     func appendMember(groupId: ID, member: Member) async throws -> Group {
         let ref = db.collection("groups").document(groupId)
         var g = try await ref.getDocument().data().flatMap { try? Firestore.Decoder().decode(Group.self, from: $0) }

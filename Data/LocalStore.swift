@@ -61,6 +61,18 @@ final class LocalStore: GroupStore {
         if let g = groupsMap[p.groupId] { onChange?(g, expensesMap[p.groupId] ?? [], paymentsMap[p.groupId] ?? []) }
     }
 
+    func updatePayment(_ p: Payment) async throws {
+        guard var arr = paymentsMap[p.groupId] else { return }
+        if let idx = arr.firstIndex(where: { $0.id == p.id }) {
+            arr[idx] = p
+            paymentsMap[p.groupId] = arr
+            if let g = groupsMap[p.groupId] { onChange?(g, expensesMap[p.groupId] ?? [], arr) }
+        } else {
+            // если почему-то нет — fallback: добавим (но это не нормальный путь)
+            try await addPayment(p)
+        }
+    }
+
     func appendMember(groupId: ID, member: Member) async throws -> Group {
         guard var g = groupsMap[groupId] else { throw NSError(domain: "group", code: 404) }
         g.members.append(member)

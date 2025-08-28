@@ -8,6 +8,7 @@ protocol GroupStore {
     func addExpense(_ e: Expense) async throws
     func updateExpense(_ e: Expense) async throws
     func addPayment(_ p: Payment) async throws
+    func updatePayment(_ p: Payment) async throws
     func appendMember(groupId: ID, member: Member) async throws -> Group
     func getGroup(by id: ID) async throws -> Group?
 }

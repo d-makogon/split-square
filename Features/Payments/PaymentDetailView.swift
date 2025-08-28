@@ -135,7 +135,7 @@ struct PaymentDetailView: View {
         p.updatedAt = Date()
 
         do {
-            try await store.addPayment(p) // в демо Storage нет update; используем set merge в Firebase; локально перезапишется
+            try await store.updatePayment(p)
             await MainActor.run { dismiss() }
         } catch { }
     }
