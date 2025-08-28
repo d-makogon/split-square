@@ -9,14 +9,16 @@ import FirebaseFirestoreSwift
 
 final class InviteService: InviteHandling {
     private let store: GroupStore
-
+    
     init(store: GroupStore) {
         self.store = store
     }
-
+    
+    // ─────────────────────────────────────────────────────────────
+    // 1) Создание инвайта (как было)
+    // ─────────────────────────────────────────────────────────────
     func createInvite(for group: Group) async throws -> String {
         #if canImport(FirebaseFirestore)
-        // Сохраняем токен в /invites, включено если Firebase добавлен
         let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         struct Invite: Codable { var token: String; var groupId: ID; var createdAt: Date; var isActive: Bool }
         let db = Firestore.firestore()
@@ -25,11 +27,41 @@ final class InviteService: InviteHandling {
         try db.collection("groups").document(group.id).setData(["activeInviteToken": token], merge: true)
         return token
         #else
-        // Локальный режим — просто генерируем токен (не шарится между устройствами)
         return UUID().uuidString.replacingOccurrences(of: "-", with: "")
         #endif
     }
-
+    
+    // ─────────────────────────────────────────────────────────────
+    // 2) NEW: resolveInvite — получить группу по токену (для экрана выбора имени)
+    // ─────────────────────────────────────────────────────────────
+    func resolveInvite(token: String) async throws -> Group {
+        #if canImport(FirebaseFirestore)
+        struct Invite: Codable { var token: String; var groupId: ID; var createdAt: Date; var isActive: Bool }
+        let db = Firestore.firestore()
+        let invRef = db.collection("invites").document(token)
+        guard let inv = try await invRef.getDocument().data().flatMap({ try? Firestore.Decoder().decode(Invite.self, from: $0) }),
+              inv.isActive else { throw NSError(domain: "invite", code: 404, userInfo: [NSLocalizedDescriptionKey: "Invite is invalid"]) }
+        if let g = try await store.getGroup(by: inv.groupId) {
+            return g
+        }
+        // запасной путь — напрямую из Firestore:
+        let gRef = db.collection("groups").document(inv.groupId)
+        guard let group = try await gRef.getDocument().data().flatMap({ try? Firestore.Decoder().decode(Group.self, from: $0) }) else {
+            throw NSError(domain: "group", code: 404, userInfo: [NSLocalizedDescriptionKey: "Group not found"])
+        }
+        return group
+        #else
+        // Локально: вернём первую попавшуюся (демо)
+        if let g = try await store.groups().first { return g }
+        throw NSError(domain: "local", code: 1, userInfo: [NSLocalizedDescriptionKey: "No local group"])
+        #endif
+    }
+    
+    // ─────────────────────────────────────────────────────────────
+    // 3) Join: выбрать существующее имя ИЛИ добавить новое
+    //   - Если имя уже есть в группе → привязываем этот слот к текущему uid
+    //   - Если нет → добавляем нового участника
+    // ─────────────────────────────────────────────────────────────
     func joinGroupByInvite(token: String, pickOrCreateName: String) async throws -> Group {
         #if canImport(FirebaseFirestore)
         struct Invite: Codable { var token: String; var groupId: ID; var createdAt: Date; var isActive: Bool }
@@ -37,17 +69,34 @@ final class InviteService: InviteHandling {
         let invRef = db.collection("invites").document(token)
         guard let inv = try await invRef.getDocument().data().flatMap({ try? Firestore.Decoder().decode(Invite.self, from: $0) }),
               inv.isActive else { throw NSError(domain: "invite", code: 404) }
-        let member = Member(id: Auth.auth().currentUser?.uid ?? UUID().uuidString, displayName: pickOrCreateName)
-        let g = try await store.appendMember(groupId: inv.groupId, member: member)
-        return g
+        
+        let groupRef = db.collection("groups").document(inv.groupId)
+        guard var group = try await groupRef.getDocument().data().flatMap({ try? Firestore.Decoder().decode(Group.self, from: $0) }) else {
+            throw NSError(domain: "group", code: 404)
+        }
+        let myUid = Auth.auth().currentUser?.uid ?? UUID().uuidString
+        
+        // Пытаемся "занять" существующее имя, если такое уже есть
+        if let idx = group.members.firstIndex(where: { $0.displayName.caseInsensitiveCompare(pickOrCreateName) == .orderedSame }) {
+            // Привязываем этот слот к текущему пользователю
+            group.members[idx].id = myUid
+        } else {
+            // Добавляем нового участника
+            group.members.append(Member(id: myUid, displayName: pickOrCreateName))
+        }
+        try groupRef.setData(from: group, merge: true)
+        return group
         #else
-        // Локальный режим — требуем, чтобы группа уже была открыта на этом устройстве
+        // Локально — просто добавим участника (слоты по имени не "занимаем")
         guard let g = try await store.groups().first else { throw NSError(domain: "local", code: 1) }
         _ = try await store.appendMember(groupId: g.id, member: Member(id: UUID().uuidString, displayName: pickOrCreateName))
         return g
         #endif
     }
-
+    
+    // ─────────────────────────────────────────────────────────────
+    // 4) Сборка ссылки-приглашения (как было)
+    // ─────────────────────────────────────────────────────────────
     func buildInviteURL(token: String) async throws -> URL {
         #if canImport(FirebaseDynamicLinks)
         let link = URL(string: "https://splitsq.app/invite?token=\(token)")!
@@ -59,7 +108,6 @@ final class InviteService: InviteHandling {
         let (shortURL, _, _) = try await comps.shorten()
         return shortURL
         #else
-        // Локально — обычный URL
         return URL(string: "https://splitsq.app/invite?token=\(token)")!
         #endif
     }

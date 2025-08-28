@@ -5,17 +5,16 @@ struct GroupDetailView: View {
     @State private var expenses: [Expense] = []
     @State private var payments: [Payment] = []
     private let store: GroupStore
-
+    
     @State private var errorMessage: String?
-    @State private var showAddMenu = false
-    @State private var showInviteAlert = false
     @State private var generatedInviteURL: URL?
-
+    @State private var showInviteAlert = false
+    
     init(initialGroup: Group, store: GroupStore) {
         self._group = State(initialValue: initialGroup)
         self.store = store
     }
-
+    
     var body: some View {
         List {
             Section("Траты") {
@@ -44,8 +43,17 @@ struct GroupDetailView: View {
         .navigationTitle(group.name)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                NavigationLink("Выплаты") { SettlementsView(group: group, expenses: expenses, payments: payments) }
-                Button { invite() } label: { Image(systemName: "person.badge.plus") }
+                // Добавление участников в существующую группу
+                NavigationLink(destination: AddMembersView(group: group, store: store)) {
+                    Image(systemName: "person.badge.plus")
+                }
+                // Расчёт выплат
+                NavigationLink("Выплаты") {
+                    SettlementsView(group: group, expenses: expenses, payments: payments)
+                }
+                // Инвайт
+                Button { invite() } label: { Image(systemName: "link") }
+                // Добавление трат/выплат
                 Menu {
                     NavigationLink("Добавить трату") { AddExpenseView(group: group, store: store) }
                     NavigationLink("Добавить выплату") { AddPaymentView(group: group, store: store) }
@@ -60,18 +68,16 @@ struct GroupDetailView: View {
         .onDisappear { store.stopGroupSubscription() }
         .alert("Ссылка скопирована", isPresented: $showInviteAlert) {
             Button("OK", role: .cancel) {}
-        } message: {
-            Text(generatedInviteURL?.absoluteString ?? "")
-        }
+        } message: { Text(generatedInviteURL?.absoluteString ?? "") }
         .alert("Ошибка", isPresented: Binding(get: { errorMessage != nil }, set: { _ in errorMessage = nil })) {
             Button("OK", role: .cancel) {}
         } message: { Text(errorMessage ?? "") }
     }
-
+    
     private func name(_ id: ID) -> String {
         group.members.first(where: { $0.id == id })?.displayName ?? "?"
     }
-
+    
     private func invite() {
         Task {
             do {

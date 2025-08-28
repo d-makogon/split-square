@@ -26,6 +26,8 @@
 		0A459CD52E5F82BD0068FF2C /* InviteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CB42E5F82BD0068FF2C /* InviteService.swift */; };
 		0A459CD62E5F82BD0068FF2C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0A459CC32E5F82BD0068FF2C /* README.md */; };
 		0A459CD72E5F82BD0068FF2C /* SETUP_FIREBASE.md in Resources */ = {isa = PBXBuildFile; fileRef = 0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */; };
+		0A459CD92E60AF4D0068FF2C /* JoinGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */; };
+		0A459CDB2E60AF7B0068FF2C /* AddMembersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CDA2E60AF780068FF2C /* AddMembersView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +67,8 @@
 		0A459CC02E5F82BD0068FF2C /* SettlementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementsView.swift; sourceTree = "<group>"; };
 		0A459CC32E5F82BD0068FF2C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SETUP_FIREBASE.md; sourceTree = "<group>"; };
+		0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinGroupView.swift; sourceTree = "<group>"; };
+		0A459CDA2E60AF780068FF2C /* AddMembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMembersView.swift; sourceTree = "<group>"; };
 		0AC001A22E5F7F0D00141EB1 /* SplitSquare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSquare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001B22E5F7F0E00141EB1 /* SplitSquareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001BC2E5F7F0E00141EB1 /* SplitSquareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -158,6 +162,8 @@
 		0A459CBF2E5F82BD0068FF2C /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				0A459CDA2E60AF780068FF2C /* AddMembersView.swift */,
+				0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */,
 				0A459CBD2E5F82BD0068FF2C /* GroupDetailView.swift */,
 				0A459CBE2E5F82BD0068FF2C /* GroupsListView.swift */,
 			);
@@ -363,11 +369,13 @@
 				0A459CCB2E5F82BD0068FF2C /* SettlementsView.swift in Sources */,
 				0A459CCC2E5F82BD0068FF2C /* AddExpenseView.swift in Sources */,
 				0A459CCD2E5F82BD0068FF2C /* FirebaseStore.swift in Sources */,
+				0A459CDB2E60AF7B0068FF2C /* AddMembersView.swift in Sources */,
 				0A459CCE2E5F82BD0068FF2C /* LocalStore.swift in Sources */,
 				0A459CCF2E5F82BD0068FF2C /* SplitSquareApp.swift in Sources */,
 				0A459CD02E5F82BD0068FF2C /* Models.swift in Sources */,
 				0A459CD12E5F82BD0068FF2C /* GroupsListView.swift in Sources */,
 				0A459CD22E5F82BD0068FF2C /* AddPaymentView.swift in Sources */,
+				0A459CD92E60AF4D0068FF2C /* JoinGroupView.swift in Sources */,
 				0A459CD32E5F82BD0068FF2C /* Currency.swift in Sources */,
 				0A459CD42E5F82BD0068FF2C /* AppRouter.swift in Sources */,
 				0A459CD52E5F82BD0068FF2C /* InviteService.swift in Sources */,
