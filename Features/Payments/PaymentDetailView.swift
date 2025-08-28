@@ -1,24 +1,23 @@
 import SwiftUI
 
-struct ExpenseDetailView: View {
-    @State var expense: Expense
+struct PaymentDetailView: View {
+    @State var payment: Payment
     let store: GroupStore
     let group: Group
     @Environment(\.dismiss) var dismiss
 
-    // UI state
     @State private var title = ""
     @State private var amountOriginal = ""
     @State private var currency = ""
-    @State private var rateToGroup = "" // теперь показываем вычисленный курс
-    @State private var payerId: ID = ""
+    @State private var rateToGroup = "" // показываем/редактируем
+    @State private var recipientId: ID = ""
     @State private var included = Set<ID>()
     @State private var splitMode: SplitMode = .equal
     @State private var manualShares: [ID: String] = [:]
 
     var body: some View {
         Form {
-            Section("Трата") {
+            Section("Выплата") {
                 TextField("Название", text: $title)
                 TextField("Сумма", text: $amountOriginal).keyboardType(.decimalPad)
                 Picker("Валюта", selection: $currency) {
@@ -26,43 +25,44 @@ struct ExpenseDetailView: View {
                 }
                 TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup).keyboardType(.decimalPad)
             }
-            Section("Кто платил") {
-                Picker("Плательщик", selection: $payerId) {
-                    ForEach(group.members, id: \.id) { m in
-                        Text(m.displayName).tag(m.id)
-                    }
+            Section("Получатель") {
+                Picker("Кому перевели", selection: $recipientId) {
+                    ForEach(group.members, id: \.id) { m in Text(m.displayName).tag(m.id) }
                 }
+                .onChange(of: recipientId) { _, new in included.remove(new) }
             }
-            Section("Кто участвует") {
+            Section("Кто переводил") {
                 ForEach(group.members, id: \.id) { m in
                     Toggle(
                         m.displayName,
                         isOn: Binding<Bool>(
-                            get: { included.contains(m.id) },
+                            get: { m.id == recipientId ? false : included.contains(m.id) },
                             set: { newValue in
+                                guard m.id != recipientId else { return }
                                 if newValue { _ = included.insert(m.id) }
                                 else { included.remove(m.id) }
                             }
                         )
                     )
+                    .disabled(m.id == recipientId)
                 }
             }
-            Section("Делёжка") {
+            Section("Разбиение перевода") {
                 Picker("Способ", selection: $splitMode) {
                     Text("Поровну").tag(SplitMode.equal)
                     Text("По суммам").tag(SplitMode.manual)
                 }
                 .pickerStyle(.segmented)
 
-                let ids = group.members.filter { included.contains($0.id) }
+                let ids = group.members.filter { included.contains($0.id) && $0.id != recipientId }
+
                 if splitMode == .equal {
-                    let totalGroup = totalInGroup()
-                    let shares = equalize(total: totalGroup, ids: ids.map(\.id))
+                    let (shareMap, _) = equalSharesPreview(totalInGroupCurrency: totalInGroup(), ids: ids.map(\.id))
                     ForEach(ids, id: \.id) { m in
                         HStack {
                             Text(m.displayName)
                             Spacer()
-                            Text("\(group.defaultCurrency) \(shares[m.id]?.description ?? "0")")
+                            Text("\(group.defaultCurrency) \(shareMap[m.id]?.description ?? "0")")
                                 .font(.callout).foregroundStyle(.secondary)
                         }
                     }
@@ -79,10 +79,11 @@ struct ExpenseDetailView: View {
                             Text(group.defaultCurrency).foregroundStyle(.secondary)
                         }
                     }
+                    manualSumHint(current: manualShares, ids: ids.map(\.id))
                 }
             }
         }
-        .navigationTitle("Трата")
+        .navigationTitle("Выплата")
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Сохранить") { Task { await save() } }
@@ -92,20 +93,20 @@ struct ExpenseDetailView: View {
     }
 
     private func loadUI() {
-        title = expense.title
-        amountOriginal = expense.amountOriginal.description
-        currency = expense.currencyOriginal
-        // Показать курс, вычислив из сохранённых сумм (п.5)
-        if expense.amountOriginal != 0 {
-            let r = expense.amountInGroupCurrency / expense.amountOriginal
+        title = payment.title
+        amountOriginal = payment.amountOriginal.description
+        currency = payment.currencyOriginal
+        // Вычисляем курс из сохранённых величин (п.5)
+        if payment.amountOriginal != 0 {
+            let r = payment.amountInGroupCurrency / payment.amountOriginal
             rateToGroup = r.description
         } else {
             rateToGroup = ""
         }
-        payerId = expense.payerId
-        included = Set(expense.includedMemberIds)
-        splitMode = expense.manualShares == nil ? .equal : .manual
-        manualShares = expense.manualShares?.mapValues { $0.description } ?? [:]
+        recipientId = payment.recipientId
+        included = Set(payment.contributions.keys)
+        splitMode = .manual // т.к. есть сохранённые суммы
+        manualShares = payment.contributions.mapValues { $0.description }
     }
 
     private func save() async {
@@ -113,39 +114,49 @@ struct ExpenseDetailView: View {
         let rate = Decimal(string: rateToGroup) ?? 1
         let totalGroup = rounded(aOrig * rate, currencyCode: group.defaultCurrency)
 
-        let ids = group.members.filter { included.contains($0.id) }.map(\.id)
-        var manual: [ID: Decimal]? = nil
-        if splitMode == .manual {
-            manual = normalizeManual(total: totalGroup, raw: manualShares, ids: ids)
+        let ids = group.members
+            .filter { included.contains($0.id) && $0.id != recipientId }
+            .map(\.id)
+
+        var contribs: [ID: Decimal]
+        if splitMode == .equal {
+            contribs = equalize(total: totalGroup, ids: ids)
+        } else {
+            contribs = normalizeManual(total: totalGroup, raw: manualShares, ids: ids)
         }
 
-        var e = expense
-        e.title = title
-        e.amountOriginal = aOrig
-        e.currencyOriginal = currency
-        e.amountInGroupCurrency = totalGroup
-        e.payerId = payerId
-        e.includedMemberIds = ids
-        e.splitMode = splitMode
-        e.manualShares = manual
-        e.updatedAt = Date()
+        var p = payment
+        p.title = title
+        p.amountOriginal = aOrig
+        p.currencyOriginal = currency
+        p.amountInGroupCurrency = totalGroup
+        p.recipientId = recipientId
+        p.contributions = contribs
+        p.updatedAt = Date()
 
         do {
-            try await store.updateExpense(e)
+            try await store.addPayment(p) // в демо Storage нет update; используем set merge в Firebase; локально перезапишется
             await MainActor.run { dismiss() }
         } catch { }
     }
 
+    // Helpers (те же, что в AddTransactionView)
     private func totalInGroup() -> Decimal {
         guard let aOrig = Decimal(string: amountOriginal) else { return 0 }
         let rate = Decimal(string: rateToGroup) ?? 1
         return rounded(aOrig * rate, currencyCode: group.defaultCurrency)
     }
 
+    private func equalSharesPreview(totalInGroupCurrency: Decimal, ids: [ID]) -> ([ID: Decimal], Decimal) {
+        let map = equalize(total: totalInGroupCurrency, ids: ids)
+        return (map, map.values.reduce(0, +))
+    }
+
     private func equalize(total: Decimal, ids: [ID]) -> [ID: Decimal] {
         guard !ids.isEmpty else { return [:] }
         let n = Decimal(ids.count)
-        let each = rounded(total / n, currencyCode: group.defaultCurrency)
+        let raw = total / n
+        let each = rounded(raw, currencyCode: group.defaultCurrency)
         var res = Dictionary(uniqueKeysWithValues: ids.map { ($0, each) })
         let sum = res.values.reduce(0, +)
         let diff = rounded(total - sum, currencyCode: group.defaultCurrency)
@@ -169,5 +180,21 @@ struct ExpenseDetailView: View {
             res[first] = rounded((res[first] ?? 0) + diff, currencyCode: group.defaultCurrency)
         }
         return res
+    }
+
+    @ViewBuilder
+    private func manualSumHint(current: [ID: String], ids: [ID]) -> some View {
+        let vals = ids.compactMap { id in Decimal(string: current[id] ?? "") }
+        let curSum = vals.reduce(0, +)
+        let target = totalInGroup()
+        let delta = rounded(target - curSum, currencyCode: group.defaultCurrency)
+        if delta != 0 {
+            HStack {
+                Text("Осталось распределить:")
+                Spacer()
+                Text("\(group.defaultCurrency) \(delta.description)")
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }

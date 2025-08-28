@@ -34,13 +34,18 @@ func computeBalances(
         }
     }
 
+    // Выплаты (переводы)
+    // Пояснение по знакам:
+    //  - получатель получил деньги → его положительный баланс (ему должны) уменьшается: минус total
+    //  - плательщики заплатили → их отрицательный баланс (они должны) увеличивается к нулю: плюс их суммы
     for p in payments {
         let total = p.amountInGroupCurrency
-        bal[p.recipientId, default: .zero] += total
+        bal[p.recipientId, default: .zero] -= total
         for (payerId, amt) in p.contributions {
-            bal[payerId, default: .zero] -= rounded(amt, currencyCode: groupCurrency)
+            bal[payerId, default: .zero] += rounded(amt, currencyCode: groupCurrency)
         }
     }
+
     for (k, v) in bal {
         let r = rounded(v, currencyCode: groupCurrency)
         bal[k] = r == 0 ? 0 : r

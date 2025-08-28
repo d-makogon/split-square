@@ -5,59 +5,85 @@ struct GroupDetailView: View {
     @State private var expenses: [Expense] = []
     @State private var payments: [Payment] = []
     private let store: GroupStore
-    
+
     @State private var errorMessage: String?
     @State private var generatedInviteURL: URL?
     @State private var showInviteAlert = false
-    
+
+    // Показ объединённого экрана добавления
+    @State private var showAddSheet = false
+
     init(initialGroup: Group, store: GroupStore) {
         self._group = State(initialValue: initialGroup)
         self.store = store
     }
-    
+
     var body: some View {
-        List {
-            Section("Траты") {
-                ForEach(expenses) { e in
-                    NavigationLink(destination: ExpenseDetailView(expense: e, store: store, group: group)) {
-                        VStack(alignment: .leading) {
-                            Text(e.title).font(.headline)
-                            Text("\(e.currencyOriginal) \(e.amountOriginal.description) • Платил: \(name(e.payerId))")
-                                .font(.subheadline).foregroundStyle(.secondary)
+        ZStack {
+            List {
+                Section("Траты") {
+                    ForEach(expenses) { e in
+                        NavigationLink(destination: ExpenseDetailView(expense: e, store: store, group: group)) {
+                            VStack(alignment: .leading) {
+                                Text(e.title).font(.headline)
+                                Text("\(e.currencyOriginal) \(e.amountOriginal.description) • Платил: \(name(e.payerId))")
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                            }
                         }
                     }
+                    if expenses.isEmpty { Text("Нет трат") }
                 }
-                if expenses.isEmpty { Text("Нет трат") }
-            }
-            Section("Выплаты") {
-                ForEach(payments) { p in
-                    VStack(alignment: .leading) {
-                        Text(p.title).font(.headline)
-                        Text("Получил: \(name(p.recipientId)) • \(p.currencyOriginal) \(p.amountOriginal.description)")
-                            .font(.subheadline).foregroundStyle(.secondary)
+                Section("Выплаты") {
+                    ForEach(payments) { p in
+                        NavigationLink(destination: PaymentDetailView(payment: p, store: store, group: group)) {
+                            VStack(alignment: .leading) {
+                                Text(p.title).font(.headline)
+                                Text("Получил: \(name(p.recipientId)) • \(p.currencyOriginal) \(p.amountOriginal.description)")
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                            }
+                        }
                     }
+                    if payments.isEmpty { Text("Нет выплат") }
                 }
-                if payments.isEmpty { Text("Нет выплат") }
+            }
+            // Кнопка по центру снизу: круглый плюс и подпись "Добавить"
+            .safeAreaInset(edge: .bottom) {
+                Button {
+                    showAddSheet = true
+                } label: {
+                    VStack(spacing: 6) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.accentColor)
+                                .frame(width: 64, height: 64)
+                            Image(systemName: "plus")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                        Text("Добавить")
+                            .font(.footnote)
+                            .foregroundStyle(.primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 6)
+                .padding(.bottom, 10)
             }
         }
         .navigationTitle(group.name)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                // Добавление участников в существующую группу
+                // Добавление участников
                 NavigationLink(destination: AddMembersView(group: group, store: store)) {
                     Image(systemName: "person.badge.plus")
                 }
-                // Расчёт выплат
+                // Выплаты-расчёт
                 NavigationLink("Выплаты") {
                     SettlementsView(group: group, expenses: expenses, payments: payments)
                 }
                 // Инвайт
                 Button { invite() } label: { Image(systemName: "link") }
-                // Добавление трат/выплат
-                Menu {
-                    NavigationLink("Добавить трату") { AddExpenseView(group: group, store: store) }
-                    NavigationLink("Добавить выплату") { AddPaymentView(group: group, store: store) }
-                } label: { Image(systemName: "plus") }
             }
         }
         .onAppear {
@@ -66,6 +92,13 @@ struct GroupDetailView: View {
             }
         }
         .onDisappear { store.stopGroupSubscription() }
+        .sheet(isPresented: $showAddSheet) {
+            NavigationStack {
+                AddTransactionView(group: group, store: store) {
+                    showAddSheet = false
+                }
+            }
+        }
         .alert("Ссылка скопирована", isPresented: $showInviteAlert) {
             Button("OK", role: .cancel) {}
         } message: { Text(generatedInviteURL?.absoluteString ?? "") }
@@ -73,11 +106,11 @@ struct GroupDetailView: View {
             Button("OK", role: .cancel) {}
         } message: { Text(errorMessage ?? "") }
     }
-    
+
     private func name(_ id: ID) -> String {
         group.members.first(where: { $0.id == id })?.displayName ?? "?"
     }
-    
+
     private func invite() {
         Task {
             do {

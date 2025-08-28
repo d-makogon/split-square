@@ -75,6 +75,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0A459CDF2E60CE600068FF2C /* Transactions */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Transactions;
+			sourceTree = "<group>";
+		};
+		0A459CE32E60CE910068FF2C /* Payments */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Payments;
+			sourceTree = "<group>";
+		};
 		0AC001A42E5F7F0D00141EB1 /* SplitSquare */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SplitSquare;
@@ -181,6 +191,8 @@
 		0A459CC22E5F82BD0068FF2C /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				0A459CE32E60CE910068FF2C /* Payments */,
+				0A459CDF2E60CE600068FF2C /* Transactions */,
 				0A459CBC2E5F82BD0068FF2C /* Expenses */,
 				0A459CBF2E5F82BD0068FF2C /* Groups */,
 				0A459CC12E5F82BD0068FF2C /* Settlements */,
@@ -230,6 +242,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				0A459CDF2E60CE600068FF2C /* Transactions */,
+				0A459CE32E60CE910068FF2C /* Payments */,
 				0AC001A42E5F7F0D00141EB1 /* SplitSquare */,
 			);
 			name = SplitSquare;
