@@ -10,6 +10,7 @@ struct AddPaymentView: View {
     @State private var rateToGroup = ""
     @State private var recipientId: ID = ""
     @State private var contributions: [ID: String] = [:]
+    @State private var showDistributionAlert = false
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -20,7 +21,9 @@ struct AddPaymentView: View {
                 Picker("Валюта", selection: $currency) {
                     ForEach(CurrencyUtil.allCurrencyCodes, id: \.self) { Text($0) }
                 }
-                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup).keyboardType(.decimalPad)
+                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup)
+                    .keyboardType(.decimalPad)
+                    .disabled(currency == group.defaultCurrency)
             }
             Section("Получатель") {
                 Picker("Кому перевели", selection: $recipientId) {
@@ -38,7 +41,15 @@ struct AddPaymentView: View {
         }
         .onAppear {
             currency = group.defaultCurrency
+            rateToGroup = "1"
             if let r = group.members.first { recipientId = r.id }
+        }
+        .onChange(of: currency) { _, new in
+            if new == group.defaultCurrency {
+                rateToGroup = "1"
+            } else if rateToGroup == "1" {
+                rateToGroup = ""
+            }
         }
         .navigationTitle("Добавить выплату")
         .toolbar {
@@ -47,6 +58,9 @@ struct AddPaymentView: View {
                 Button("Сохранить") { Task { await save() } }
                     .disabled(title.isEmpty || Decimal(string: amountOriginal) == nil)
             }
+        }
+        .alert("Не все деньги распределены", isPresented: $showDistributionAlert) {
+            Button("OK", role: .cancel) {}
         }
     }
 
@@ -59,6 +73,11 @@ struct AddPaymentView: View {
             if let d = Decimal(string: s), d > 0 {
                 map[id] = rounded(d * rate, currencyCode: group.defaultCurrency)
             }
+        }
+        let sum = map.values.reduce(0, +)
+        if sum != aGroup {
+            showDistributionAlert = true
+            return
         }
         let pay = Payment(
             id: UUID().uuidString,

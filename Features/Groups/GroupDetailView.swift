@@ -74,6 +74,9 @@ struct GroupDetailView: View {
         .navigationTitle(group.name)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
+                NavigationLink(destination: GroupInfoView(group: group, expenses: expenses, store: store)) {
+                    Image(systemName: "info.circle")
+                }
                 // Добавление участников
                 NavigationLink(destination: AddMembersView(group: group, store: store)) {
                     Image(systemName: "person.badge.plus")

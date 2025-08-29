@@ -15,6 +15,7 @@ struct ExpenseDetailView: View {
     @State private var included = Set<ID>()
     @State private var splitMode: SplitMode = .equal
     @State private var manualShares: [ID: String] = [:]
+    @State private var showDistributionAlert = false
 
     var body: some View {
         Form {
@@ -24,7 +25,9 @@ struct ExpenseDetailView: View {
                 Picker("Валюта", selection: $currency) {
                     ForEach(CurrencyUtil.allCurrencyCodes, id: \.self) { Text($0).tag($0) }
                 }
-                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup).keyboardType(.decimalPad)
+                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup)
+                    .keyboardType(.decimalPad)
+                    .disabled(currency == group.defaultCurrency)
             }
             Section("Кто платил") {
                 Picker("Плательщик", selection: $payerId) {
@@ -89,6 +92,16 @@ struct ExpenseDetailView: View {
             }
         }
         .onAppear { loadUI() }
+        .onChange(of: currency) { _, new in
+            if new == group.defaultCurrency {
+                rateToGroup = "1"
+            } else if rateToGroup == "1" {
+                rateToGroup = ""
+            }
+        }
+        .alert("Не все деньги распределены", isPresented: $showDistributionAlert) {
+            Button("OK", role: .cancel) {}
+        }
     }
 
     private func loadUI() {
@@ -98,9 +111,9 @@ struct ExpenseDetailView: View {
         // Показать курс, вычислив из сохранённых сумм (п.5)
         if expense.amountOriginal != 0 {
             let r = expense.amountInGroupCurrency / expense.amountOriginal
-            rateToGroup = r.description
+            rateToGroup = (currency == group.defaultCurrency ? "1" : r.description)
         } else {
-            rateToGroup = ""
+            rateToGroup = currency == group.defaultCurrency ? "1" : ""
         }
         payerId = expense.payerId
         included = Set(expense.includedMemberIds)
@@ -116,7 +129,18 @@ struct ExpenseDetailView: View {
         let ids = group.members.filter { included.contains($0.id) }.map(\.id)
         var manual: [ID: Decimal]? = nil
         if splitMode == .manual {
-            manual = normalizeManual(total: totalGroup, raw: manualShares, ids: ids)
+            var tmp: [ID: Decimal] = [:]
+            for id in ids {
+                if let s = manualShares[id], let v = Decimal(string: s) {
+                    tmp[id] = rounded(v, currencyCode: group.defaultCurrency)
+                }
+            }
+            let sum = tmp.values.reduce(0, +)
+            if sum != totalGroup {
+                showDistributionAlert = true
+                return
+            }
+            manual = tmp
         }
 
         var e = expense
@@ -155,19 +179,4 @@ struct ExpenseDetailView: View {
         return res
     }
 
-    private func normalizeManual(total: Decimal, raw: [ID: String], ids: [ID]) -> [ID: Decimal] {
-        var res: [ID: Decimal] = [:]
-        for id in ids {
-            if let s = raw[id], let v = Decimal(string: s) {
-                res[id] = rounded(v, currencyCode: group.defaultCurrency)
-            }
-        }
-        if res.isEmpty { return equalize(total: total, ids: ids) }
-        let sum = res.values.reduce(0, +)
-        let diff = rounded(total - sum, currencyCode: group.defaultCurrency)
-        if diff != 0, let first = ids.first {
-            res[first] = rounded((res[first] ?? 0) + diff, currencyCode: group.defaultCurrency)
-        }
-        return res
-    }
 }
