@@ -87,6 +87,7 @@ struct AddPaymentView: View {
             currencyOriginal: currency,
             amountInGroupCurrency: aGroup,
             recipientId: recipientId,
+            splitMode: .manual,
             contributions: map,
             createdAt: Date(),
             updatedAt: nil

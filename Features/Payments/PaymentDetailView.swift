@@ -118,8 +118,8 @@ struct PaymentDetailView: View {
         }
         recipientId = payment.recipientId
         included = Set(payment.contributions.keys)
-        splitMode = .manual // т.к. есть сохранённые суммы
-        manualShares = payment.contributions.mapValues { $0.description }
+        splitMode = payment.splitMode
+        manualShares = payment.splitMode == .manual ? payment.contributions.mapValues { $0.description } : [:]
     }
 
     private func save() async {
@@ -155,6 +155,7 @@ struct PaymentDetailView: View {
         p.currencyOriginal = currency
         p.amountInGroupCurrency = totalGroup
         p.recipientId = recipientId
+        p.splitMode = splitMode
         p.contributions = contribs
         p.updatedAt = Date()
 

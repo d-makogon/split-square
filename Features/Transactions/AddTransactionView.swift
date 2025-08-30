@@ -313,6 +313,7 @@ struct AddTransactionView: View {
                 currencyOriginal: currency,
                 amountInGroupCurrency: amountGroup,
                 recipientId: recipientId,
+                splitMode: splitModePayment,
                 contributions: contribs,
                 createdAt: Date(),
                 updatedAt: nil
