@@ -14,6 +14,7 @@ struct PaymentDetailView: View {
     @State private var included = Set<ID>()
     @State private var splitMode: SplitMode = .equal
     @State private var manualShares: [ID: String] = [:]
+    @State private var showDistributionAlert = false
 
     var body: some View {
         Form {
@@ -23,7 +24,9 @@ struct PaymentDetailView: View {
                 Picker("Валюта", selection: $currency) {
                     ForEach(CurrencyUtil.allCurrencyCodes, id: \.self) { Text($0).tag($0) }
                 }
-                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup).keyboardType(.decimalPad)
+                TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup)
+                    .keyboardType(.decimalPad)
+                    .disabled(currency == group.defaultCurrency)
             }
             Section("Получатель") {
                 Picker("Кому перевели", selection: $recipientId) {
@@ -90,6 +93,16 @@ struct PaymentDetailView: View {
             }
         }
         .onAppear { loadUI() }
+        .onChange(of: currency) { _, new in
+            if new == group.defaultCurrency {
+                rateToGroup = "1"
+            } else if rateToGroup == "1" {
+                rateToGroup = ""
+            }
+        }
+        .alert("Не все деньги распределены", isPresented: $showDistributionAlert) {
+            Button("OK", role: .cancel) {}
+        }
     }
 
     private func loadUI() {
@@ -99,14 +112,14 @@ struct PaymentDetailView: View {
         // Вычисляем курс из сохранённых величин (п.5)
         if payment.amountOriginal != 0 {
             let r = payment.amountInGroupCurrency / payment.amountOriginal
-            rateToGroup = r.description
+            rateToGroup = (currency == group.defaultCurrency ? "1" : r.description)
         } else {
-            rateToGroup = ""
+            rateToGroup = currency == group.defaultCurrency ? "1" : ""
         }
         recipientId = payment.recipientId
         included = Set(payment.contributions.keys)
-        splitMode = .manual // т.к. есть сохранённые суммы
-        manualShares = payment.contributions.mapValues { $0.description }
+        splitMode = payment.splitMode
+        manualShares = payment.splitMode == .manual ? payment.contributions.mapValues { $0.description } : [:]
     }
 
     private func save() async {
@@ -122,7 +135,18 @@ struct PaymentDetailView: View {
         if splitMode == .equal {
             contribs = equalize(total: totalGroup, ids: ids)
         } else {
-            contribs = normalizeManual(total: totalGroup, raw: manualShares, ids: ids)
+            var tmp: [ID: Decimal] = [:]
+            for id in ids {
+                if let s = manualShares[id], let v = Decimal(string: s) {
+                    tmp[id] = rounded(v, currencyCode: group.defaultCurrency)
+                }
+            }
+            let sum = tmp.values.reduce(0, +)
+            if sum != totalGroup {
+                showDistributionAlert = true
+                return
+            }
+            contribs = tmp
         }
 
         var p = payment
@@ -131,6 +155,7 @@ struct PaymentDetailView: View {
         p.currencyOriginal = currency
         p.amountInGroupCurrency = totalGroup
         p.recipientId = recipientId
+        p.splitMode = splitMode
         p.contributions = contribs
         p.updatedAt = Date()
 
@@ -166,21 +191,6 @@ struct PaymentDetailView: View {
         return res
     }
 
-    private func normalizeManual(total: Decimal, raw: [ID: String], ids: [ID]) -> [ID: Decimal] {
-        var res: [ID: Decimal] = [:]
-        for id in ids {
-            if let s = raw[id], let v = Decimal(string: s) {
-                res[id] = rounded(v, currencyCode: group.defaultCurrency)
-            }
-        }
-        if res.isEmpty { return equalize(total: total, ids: ids) }
-        let sum = res.values.reduce(0, +)
-        let diff = rounded(total - sum, currencyCode: group.defaultCurrency)
-        if diff != 0, let first = ids.first {
-            res[first] = rounded((res[first] ?? 0) + diff, currencyCode: group.defaultCurrency)
-        }
-        return res
-    }
 
     @ViewBuilder
     private func manualSumHint(current: [ID: String], ids: [ID]) -> some View {

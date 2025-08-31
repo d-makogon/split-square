@@ -12,6 +12,7 @@ struct AddExpenseView: View {
     @State private var included = Set<ID>()
     @State private var splitMode: SplitMode = .equal
     @State private var manualShares: [ID: String] = [:]
+    @State private var showDistributionAlert = false
     
     @Environment(\.dismiss) var dismiss
     
@@ -24,8 +25,16 @@ struct AddExpenseView: View {
         }
         .onAppear {
             currency = group.defaultCurrency
+            rateToGroup = "1"
             if let me = group.members.first { payerId = me.id }
             included = Set(group.members.map(\.id))
+        }
+        .onChange(of: currency) { _, new in
+            if new == group.defaultCurrency {
+                rateToGroup = "1"
+            } else if rateToGroup == "1" {
+                rateToGroup = ""
+            }
         }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -37,6 +46,9 @@ struct AddExpenseView: View {
             }
         }
         .navigationTitle("Добавить трату")
+        .alert("Не все деньги распределены", isPresented: $showDistributionAlert) {
+            Button("OK", role: .cancel) {}
+        }
     }
     
     // MARK: - Sections
@@ -55,6 +67,7 @@ struct AddExpenseView: View {
             
             TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup)
                 .keyboardType(.decimalPad)
+                .disabled(currency == group.defaultCurrency)
         }
     }
     
@@ -129,6 +142,11 @@ struct AddExpenseView: View {
                 if let s = manualShares[id], let v = Decimal(string: s) {
                     tmp[id] = rounded(v, currencyCode: group.defaultCurrency)
                 }
+            }
+            let sum = tmp.values.reduce(0, +)
+            if sum != aGroup {
+                showDistributionAlert = true
+                return
             }
             manual = tmp
         }

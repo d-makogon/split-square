@@ -28,6 +28,7 @@
 		0A459CD72E5F82BD0068FF2C /* SETUP_FIREBASE.md in Resources */ = {isa = PBXBuildFile; fileRef = 0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */; };
 		0A459CD92E60AF4D0068FF2C /* JoinGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */; };
 		0A459CDB2E60AF7B0068FF2C /* AddMembersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A459CDA2E60AF780068FF2C /* AddMembersView.swift */; };
+		0A59BCD82E64523D00921F6B /* GroupInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A59BCD72E64523D00921F6B /* GroupInfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		0A459CC42E5F82BD0068FF2C /* SETUP_FIREBASE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SETUP_FIREBASE.md; sourceTree = "<group>"; };
 		0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinGroupView.swift; sourceTree = "<group>"; };
 		0A459CDA2E60AF780068FF2C /* AddMembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMembersView.swift; sourceTree = "<group>"; };
+		0A59BCD72E64523D00921F6B /* GroupInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInfoView.swift; sourceTree = "<group>"; };
 		0AC001A22E5F7F0D00141EB1 /* SplitSquare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSquare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001B22E5F7F0E00141EB1 /* SplitSquareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC001BC2E5F7F0E00141EB1 /* SplitSquareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SplitSquareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -172,6 +174,7 @@
 		0A459CBF2E5F82BD0068FF2C /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				0A59BCD72E64523D00921F6B /* GroupInfoView.swift */,
 				0A459CDA2E60AF780068FF2C /* AddMembersView.swift */,
 				0A459CD82E60AF4A0068FF2C /* JoinGroupView.swift */,
 				0A459CBD2E5F82BD0068FF2C /* GroupDetailView.swift */,
@@ -374,6 +377,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A59BCD82E64523D00921F6B /* GroupInfoView.swift in Sources */,
 				0A459CC52E5F82BD0068FF2C /* StoreFactory.swift in Sources */,
 				0A459CC62E5F82BD0068FF2C /* GroupDetailView.swift in Sources */,
 				0A459CC72E5F82BD0068FF2C /* ExpenseDetailView.swift in Sources */,

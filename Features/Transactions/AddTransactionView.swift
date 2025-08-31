@@ -19,7 +19,7 @@ struct AddTransactionView: View {
     @State private var amountOriginal = ""
     @State private var currency = ""
     @State private var rateToGroup = "" // хранится как число; при редактировании — показываем
-
+    
     // Expense
     @State private var payerId: ID = ""
     @State private var includedExpense = Set<ID>()  // кто участвует в делёжке
@@ -31,6 +31,7 @@ struct AddTransactionView: View {
     @State private var includedPayment = Set<ID>() // кто переводил (плательщики)
     @State private var splitModePayment: SplitMode = .equal
     @State private var manualSharesPayment: [ID: String] = [:] // в валюте группы
+    @State private var showDistributionAlert = false
 
     var body: some View {
         Form {
@@ -64,18 +65,28 @@ struct AddTransactionView: View {
         }
         .onAppear {
             currency = group.defaultCurrency
+            rateToGroup = "1"
             if let first = group.members.first?.id {
                 payerId = first
                 recipientId = first
             }
             includedExpense = Set(group.members.map(\.id))
             includedPayment = Set(group.members.map(\.id))
-            // по выплатам — по умолчанию исключим получателя из плательщиков
             if let r = group.members.first { includedPayment.remove(r.id) }
+        }
+        .onChange(of: currency) { _, new in
+            if new == group.defaultCurrency {
+                rateToGroup = "1"
+            } else if rateToGroup == "1" {
+                rateToGroup = ""
+            }
         }
         .navigationTitle("Новая запись")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
+        }
+        .alert("Не все деньги распределены", isPresented: $showDistributionAlert) {
+            Button("OK", role: .cancel) {}
         }
     }
 
@@ -88,7 +99,9 @@ struct AddTransactionView: View {
             Picker("Валюта", selection: $currency) {
                 ForEach(CurrencyUtil.allCurrencyCodes, id: \.self) { Text($0).tag($0) }
             }
-            TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup).keyboardType(.decimalPad)
+            TextField("Курс → \(group.defaultCurrency)", text: $rateToGroup)
+                .keyboardType(.decimalPad)
+                .disabled(currency == group.defaultCurrency)
         }
     }
 
@@ -244,7 +257,16 @@ struct AddTransactionView: View {
             if splitModeExpense == .equal {
                 shares = equalize(total: amountGroup, ids: ids)
             } else {
-                shares = normalizeManual(total: amountGroup, raw: manualSharesExpense, ids: ids)
+                for id in ids {
+                    if let s = manualSharesExpense[id], let v = Decimal(string: s) {
+                        shares[id] = rounded(v, currencyCode: group.defaultCurrency)
+                    }
+                }
+                let sum = shares.values.reduce(0, +)
+                if sum != amountGroup {
+                    showDistributionAlert = true
+                    return
+                }
             }
             let e = Expense(
                 id: UUID().uuidString,
@@ -271,7 +293,16 @@ struct AddTransactionView: View {
             if splitModePayment == .equal {
                 contribs = equalize(total: amountGroup, ids: ids)
             } else {
-                contribs = normalizeManual(total: amountGroup, raw: manualSharesPayment, ids: ids)
+                for id in ids {
+                    if let s = manualSharesPayment[id], let v = Decimal(string: s) {
+                        contribs[id] = rounded(v, currencyCode: group.defaultCurrency)
+                    }
+                }
+                let sum = contribs.values.reduce(0, +)
+                if sum != amountGroup {
+                    showDistributionAlert = true
+                    return
+                }
             }
             // Создаём выплату: получатель +, плательщики −
             let p = Payment(
@@ -282,6 +313,7 @@ struct AddTransactionView: View {
                 currencyOriginal: currency,
                 amountInGroupCurrency: amountGroup,
                 recipientId: recipientId,
+                splitMode: splitModePayment,
                 contributions: contribs,
                 createdAt: Date(),
                 updatedAt: nil
@@ -326,24 +358,6 @@ struct AddTransactionView: View {
         return res
     }
 
-    /// Нормализуем ручные суммы так, чтобы итог совпал с total (фикс п.1 — исключает «+2000»)
-    private func normalizeManual(total: Decimal, raw: [ID: String], ids: [ID]) -> [ID: Decimal] {
-        var res: [ID: Decimal] = [:]
-        for id in ids {
-            if let s = raw[id], let v = Decimal(string: s) {
-                res[id] = rounded(v, currencyCode: group.defaultCurrency)
-            }
-        }
-        // если пусто — fallback на equal
-        if res.isEmpty { return equalize(total: total, ids: ids) }
-        // Подгонка суммы
-        let sum = res.values.reduce(0, +)
-        let diff = rounded(total - sum, currencyCode: group.defaultCurrency)
-        if diff != 0, let first = ids.first {
-            res[first] = rounded((res[first] ?? 0) + diff, currencyCode: group.defaultCurrency)
-        }
-        return res
-    }
 
     @ViewBuilder
     private func manualSumHint(current: [ID: String], ids: [ID]) -> some View {
