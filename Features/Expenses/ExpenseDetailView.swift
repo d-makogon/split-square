@@ -117,7 +117,7 @@ struct ExpenseDetailView: View {
         }
         payerId = expense.payerId
         included = Set(expense.includedMemberIds)
-        splitMode = expense.manualShares == nil ? .equal : .manual
+        splitMode = expense.splitMode
         manualShares = expense.manualShares?.mapValues { $0.description } ?? [:]
     }
 
